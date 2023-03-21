@@ -1,0 +1,91 @@
+1. pipenv install && pipenv shell
+2. cd server
+3. flask db init
+4. flask db revision --autogenerate -m "create owners, pets tables"
+5. flask db upgrade
+6. python seed.py
+7. flask shell
+    >>> from app import app
+    >>> from models import db, Owner, Pet
+    >>> pet = Pet(name="Ben", species="Dog")
+    >>> db.session.add(pet)
+    >>> db.session.commit()
+    >>> pet.id
+    1
+    # added a data into pets table => owner_id = Null
+8. 
+    >>> owner = Owner(name="Ben")
+    >>> db.session.add(owner)
+    >>> db.session.commit()
+    >>> owner
+    <Pet Owner Ben>
+    # added a data into owners table 
+9. 
+    >>> pet.owner = owner
+    >>> db.session.add(pet)
+    >>> db.session.commit()
+    >>> pet.owner
+    <Pet Owner Ben>
+    # create relationship and update pets table => owner_id = 1
+
+10.
+import random
+from faker import Faker
+
+with app.app_context():
+    # 10-1: clear old records
+    Pet.query.delete()
+    Owner.query.delete()
+
+    # 10-2: create data with faker
+    owners = []
+    for n in range(20):
+        owner = Owner(name=Faker().name())
+        owners.append(owner)
+    db.session.add_all(owners)
+
+    pets = []
+    species = ['Dog', 'Cat', 'Chicken', 'Hamster', 'Turtle']
+    for n in range(50):
+        pet = Pet(
+            name=Faker().name(),
+            species=random.choice(species),
+            owner=random.choice(owners)
+        )
+        pets.append(pet)
+    db.session.add_all(pets)
+
+    db.session.commit()
+
+11. python seed.py
+12. many = db.relationship(
+        "many_Table",
+        backref="one_table_lowercase",
+        lazy="subquer  # joins the two tables and returns the results. 
+    )
+
+                # # work without setting lazy
+                # from app import app
+                # from models import db, Pet, Owner
+                # with app.app_context():
+                #     pets = Pet.query.filter_by(owner_id=1).first()
+                #     owner = Owner.query.filter_by(id=1).first()
+                #     pets_list = owner.pets
+                # pets_list
+
+                # with app.app_context():
+                #     owners = Owner.query.all()
+                #     owner = owners[0]
+                #     pets = owner.pets
+                # pets
+                #  ==============================================================
+                # # set lay="subquery" make owner.pets work
+                # # otherwise raise orm_exc.DetachedInstanceError
+                # from app import app
+                # from models import db, Owner
+                # with app.app_context():
+                #     owners = Owner.query.all()
+                #     owner = owners[0]
+                # owner.pets
+
+13. 

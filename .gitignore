@@ -54,3 +54,6 @@ __pycache__
 
 server/instance
 *.db
+
+# steps
+.steps.txt

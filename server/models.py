@@ -13,7 +13,9 @@ class Owner(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
 
-    pets = db.relationship('Pet', backref='owner')
+    # relationship in one
+    pets = db.relationship('Pet', backref='owner')  # pet.owner
+    # pets = db.relationship('Pet', backref='owner', lazy='subquery')
 
     def __repr__(self):
         return f'<Pet Owner {self.name}>'
@@ -25,6 +27,7 @@ class Pet(db.Model):
     name = db.Column(db.String)
     species = db.Column(db.String)
 
+    # foreign key in many -> links a pet to a owner using the pk of that owner
     owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'))
 
     def __repr__(self):
